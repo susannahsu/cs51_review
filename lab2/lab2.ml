@@ -25,13 +25,14 @@ no typing error is generated.
 
 
 
-let exercise1a : float * string =
+let exercise1a : (float * string) =
   (0.1, "hi") ;;
 
 let exercise1b : string list =
   let add_to_hello_list x = ["Hello"; x]
   in add_to_hello_list "World!";;
 
+(* The function takes in a tuple! Don't mix up tuples with 2 args! *)
 let exercise1c : int * float -> int =
   fun (x, y) -> x + int_of_float y ;;
 
@@ -104,9 +105,18 @@ be false. *)
 
 let third_element (lst : int list) : bool * int =
   match lst with
+  | []
+  | [_]
+  | [_; _] -> false, 0
+  | _ :: _ :: x :: tl -> true, x ;;
+
+(* lab solution uses another way, I think it's better cuz it allows me
+not to consider the complicated cases before I get to the third element *)
+
+let third_element (lst : int list) : bool * int =
+  match lst with
   | _ :: _ :: elt3 :: _ -> true, elt3
   | _ -> false, 0 ;;
-
 
 (*======================================================================
 Part 2: First-order functional programming with lists
@@ -144,6 +154,24 @@ comprehensive. You may want to add some tests for other functions in
 the lab to get some practice with automated unit testing.
 ......................................................................*)
 
+(* use higher order function to solve *)
+let square_all (lst : int list) : int list =
+  List.map (fun x -> x * x) lst ;;
+
+(* use pattern matching
+when you get to empty list, this means you have reached the end of
+the list, so you can just append an empty list at the end of your result!
+*)
+
+(* what I've learnt from prev exercises: when you are applying a function
+on sth inside other things, always bracket around the operation of that
+function to make things clearer *)
+
+(* also, oftentimes, it's unnecessary to pattern match a single element.
+for example, in this question, the single element case is already covered
+by the hd :: tl case, since if you reach to the last element, tl will just
+be an empty list, so for the next round the empty list case will take 
+care of it *)
 let rec square_all (lst : int list) : int list =
   match lst with
   | [] -> []
@@ -158,11 +186,16 @@ its integer list argument. (What's a sensible return value for the sum
 of the empty list?)
 ......................................................................*)
 
+(* use higher order function fold *)
+let sum (lst : int list) : int =
+  List.fold_left (fun acc x -> acc + x) 0 lst ;;
+
+(* use recursive *)
 let rec sum (lst : int list) : int =
   match lst with
   | [] -> 0
   | hd :: tl -> hd + sum tl ;;
-
+ 
 (*......................................................................
 Exercise 6: Define a recursive function `max_list` that returns the
 maximum element in a non-empty integer list. Don't worry about what
@@ -180,12 +213,29 @@ if we have more than 1 element then we need a function to help us determine
 the max value
 *)
 
+(* use higher order function fold *)
+let max_list (lst : int list) : int =
+  List.fold_left 
+    (fun max x -> if x > max then x else max) 
+    (List.hd lst) 
+    lst ;;
+
+(* simple pattern matching way *)
 let rec max_list (lst : int list) : int =
   match lst with
-  | [] -> raise (Invalid_argument "max_list : empty list")
+  | [] -> raise (Invalid_argument "the list cannot be empty")
+  | [hd] -> hd
+  | hd :: tl -> max hd (max_list tl) ;;
+
+(* Try to use a more complicated way *)
+let rec max_list (lst : int list) : int =
+  match lst with
+  | [] -> raise (Invalid_argument "the list cannot be empty")
   | [elt] -> elt
-  | hd :: tl -> 
-      let max_tail = max_list tl in 
+  (* if you have more than one element, we want to call the function
+  to the end, then compare head with the result *)
+  | hd :: tl ->
+      let max_tail = max_list tl in
       if hd > max_tail then hd else max_tail ;;
 
 (*......................................................................
@@ -207,10 +257,10 @@ length lists, to just pad the shorter list with, say, `false` values, so
 that, `zip [1] [2; 3; 4] = [(1, 2); (false, 3); (false, 4)]`?
 ......................................................................*)
 
-let rec zip (x : int list) (y : int list) : (int * int) list =
-  match x , y with
-  | [] , [] -> []
-  | xhd :: xtl , yhd :: ytl -> (xhd , yhd) :: (zip xtl ytl) ;;
+let rec zip (lst1 : int list) (lst2 : int list) : (int * int) list =
+  match lst1, lst2 with
+  | [], [] -> []
+  | hd1 :: tl1, hd2 :: tl2 -> (hd1, hd2) :: (zip tl1 tl2) ;;
 
 (*......................................................................
 Exercise 8: Recall from Chapter 7 the definition of the function
@@ -241,11 +291,12 @@ functional programming zen mindset.
 let rec prods (lst : (int * int) list) : int list =
   match lst with
   | [] -> []
-  | (x, y) :: tail -> (x * y) :: (prods tail) ;;
+  | (x, y) :: tl -> (x * y) :: (prods tl) ;;
 
-let dotprod (a : int list) (b : int list) : int =
-  sum (prods (zip a b))
-  ;;
+(* for dotprod, you want to first zip the two lists together, then you
+can apply prod on it, then you can apply sum *)
+let dotprod (lst1 : int list) (lst2 : int list) : int = 
+  sum (prods (zip lst1 lst2)) ;;
 
 (*======================================================================
 Part 3: Higher-order functional programming with map, filter, and fold
@@ -304,17 +355,25 @@ Exercise 9: Reimplement `sum` using `fold_left`, naming it `sum_ho`
 ......................................................................*)
 (* I opened List in the very front of the document *)
 
-let sum_ho : int list -> int =
-  fold_left (+) 0 ;;
+let sum_ho (lst : int list) : int =
+  List.fold_left (fun acc x -> acc + x) 0 lst ;;
 
+(* try to use partial application and syntatic sugar *)
+let sum_ho : int list -> int =
+  List.fold_left (+) 0 ;;
 
 (*......................................................................
 Exercise 10: Reimplement prods : `(int * int) list -> int list` using
 the `map` function. Call it `prods_ho`.
 ......................................................................*)
 
+(* not use partial application and syntatic sugar *)
+let prods_ho (lst : (int * int) list) : int list =
+  List.map (fun (x, y) -> x * y) lst ;;
+
+(* use partial application and syntatic sugar *)
 let prods_ho : (int * int) list -> int list =
-  map (fun (x,y) -> x * y) ;;
+  List.map (fun (x, y) -> x * y) ;;
 
 (*......................................................................
 Exercise 11: The OCaml List module provides -- in addition to the `map`,
@@ -327,9 +386,14 @@ https://caml.inria.fr/pub/docs/manual-ocaml/libref/List.html#VALmap2.)
 Use `map2` to reimplement `zip` and call it `zip_ho`.
 ......................................................................*)
 
-
+(* try to use partial application and syntatic sugar *)
 let zip_ho : int list -> int list -> (int * int) list =
-  map2 (fun first second -> first, second) ;;
+  (* you don't need the bracket around the tuple x, y *)
+  List.map2 (fun x y -> x, y) ;;
+
+(* try not to use partial application and syntatic sugar *)
+let zip_ho (lst1 : int list) (lst2 : int list) : (int * int) list =
+  List.map2 (fun x y -> x , y) lst1 lst2 ;;
 
 (*......................................................................
 Exercise 12: Define a function `evens`, using these higher-order
@@ -340,5 +404,18 @@ even numbers in its argument list in the same order. For instance,
     - : int list = [2; 6; 4]
 ......................................................................*)
 
+(* should use filter for this! *)
+
+
+(* you need to review the usage of filter. filter takes in a boolean
+function, and it will automatically help you keep the stuff that evaluates
+to true under the boolean argument, so you don't have to use if...else 
+in the function! *)
+
+(* try to use syntatic sugar and partial application *)
 let evens : int list -> int list =
-  filter (fun n -> n mod 2 = 0) ;;
+  List.filter (fun x -> x mod 2 = 0) ;;
+
+(* try not to use syntatic sugar and partial application *)
+let evens (lst : int list) : int list =
+  List.filter (fun x -> x mod 2 = 0) lst ;;
