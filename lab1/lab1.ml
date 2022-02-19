@@ -107,6 +107,8 @@ fewest parentheses? Replace the `failwith` expression with the
 appropriate OCaml expression to assign the value to the variable
 `exercise3` below.
 ......................................................................*)
+(* the most bottom operation starts the first *)
+(* don't change the logic of the statement to reduce # of brackets *)
 
 let exercise3 () = ~- (5 - 3) ;;
 
@@ -117,16 +119,17 @@ correspond to the abstract syntax above.
 Exercise 4: Draw the tree that the concrete syntax `~- 5 - 3` does
 correspond to. Check it with a member of the course staff.
 
-      -
-      ^
-     / \
-    /   \
-   ~-    3
-   |      
-   |       
-   5       
+Since we don't gave bracket, the operation should just go from the left
+to right. So we start of by negating 5 first, then subtract 3 from 5
 
-
+     -
+     |
+     |
+    / \
+   /   \
+  ~-    3
+  |
+  5
 
 ......................................................................*)
 
@@ -156,7 +159,7 @@ you'd like.
 (*
   # (4 - 2) - 1 ;;
   - : int = 1
-  # 4- (2 - 1) ;;
+  # 4 - (2 - 1) ;;
   - : int = 3 
 *)
 
@@ -169,20 +172,26 @@ expressions below? Test your solution by uncommenting the examples
 (removing the `(*` and `*)` at start and end) and verifying that no
 typing error is generated.
 ......................................................................*)
-
+(* the following ask for the return type of the whole block, not the 
+return type of the individual functions in the block *)
 
 let exercise6a : int = 42 ;;
 
+(* this is just a string but not string -> string because the actual
+return is just 'y', which is a string *)
 let exercise6b : string =
   let greet y = "Hello " ^ y
   in greet "World!";;
 
-let exercise6c : float -> float  =
+(* This is float -> float because this thing returns a function *)
+let exercise6c : float -> float =
   fun x -> x +. 11.1 ;;
 
 let exercise6d : int -> bool =
   fun x -> x < x + 1 ;;
 
+(* here we have two input, one is int, one is float, and the return is 
+int *)
 let exercise6e : int -> float -> int =
   fun x -> fun y -> x + int_of_float y ;;
 
@@ -216,7 +225,7 @@ other functions in the lab to get some practice with automated unit
 testing.
 ......................................................................*)
 
-let square (x : int) : int  =
+let square (x : int) : int =
   x * x ;;
 
 let exercise7 = 
@@ -235,7 +244,8 @@ you should get the following behavior:
    # exclaim "what's up" ;;
    - : string = "What's up!"
 ......................................................................*)
-
+(* Remember to add parentheses around String.capitalize)ascii s since 
+the exclamation mark has to be concatenate to the whole result *)
 let exclaim (text : string) : string =
   (String.capitalize_ascii text) ^ "!" ;;
 
@@ -257,10 +267,16 @@ non-negative.
    # small_bills 150 ;;
    - : bool = true
 ......................................................................*)
+(* I tried to not to use if else here by replacing it just with a boolean
+statement. So if price mod bound is not equal to zero, it means that it
+needs bill smaller than 20 to pay *)
 
+(* remember to add parentheses around price mod bound and also you should
+not only consider the case that price mod bound is larger than zero, you
+should just consider the case that it is not equal to zero *)
 let small_bills (price : int) : bool =
-  let cutoff = 20 in
-  (price mod cutoff) <> 0 ;;
+  let bound = 20 in
+  (price mod bound) <> 0 ;;
 
 (*......................................................................
 Exercise 10:
@@ -287,9 +303,9 @@ that:
    - : int = 1
 ......................................................................*)
 
-(* calculate the common info needed for the two functions first*)
+(* We want to abstract the part that is repetitive here *)
 
-let computus_basis (year : int) : int =
+let comp_common (year : int) : int =
   let a = year mod 19 in
   let b = year / 100 in
   let c = year mod 100 in
@@ -297,22 +313,22 @@ let computus_basis (year : int) : int =
   let e = b mod 4 in
   let f = (b + 8) / 25 in
   let g = (b - f + 1) / 3 in
-  let h = (19 * a + b - d - g + 15) mod 30 in
+  let h = (19 * a + b - d - g +15) mod 30 in
   let i = c / 4 in
   let k = c mod 4 in
   let l = (32 + 2 * e + 2 * i - h - k) mod 7 in
-  let m = (a + 11 * h + 22 * l) / 451 in
-  h + l - 7 * m + 114 ;;
-
-(* now we can just call computus_basis inside each of the functions below 
-to calculate what we want *)
-
+  let m = (a + 11 * h + 22 * l) / 451 in 
+  (* I didn't know how to write it but not it seems like i just
+  have to calculuate the last part where the calc of month and day
+  are the same here*)
+  h + l - 7 * m + 144 ;;
+  
 let computus_month (year : int) : int =
-  (computus_basis year) / 31 ;;
+  (comp_common year) / 31 ;;
 
 
 let computus_day (year : int) : int =
-  (computus_basis year) mod 31 + 1 ;;
+  (comp_common year) mod 31 + 1 ;;
 
 (*======================================================================
 Part 4: Code review
@@ -376,12 +392,17 @@ line given at <https://url.cs51.io/frustrum>.
      just to allow the unit tests to have something to compile
      against. You'll want to just delete them and start over.) ***)
 
-let frustrum_volume (radius1: float) 
-                    (radius2: float) 
-                    (height: float) 
+(* remember to add dot to all float operations*)
+(* also, when you are trying to write code for some formula, try not
+to change the order or grouping of the original formula, make sure you
+express that grouping as well in your code *)
+
+let frustrum_volume (radius1 : float)
+                    (radius2 : float)
+                    (height : float)
                   : float =
   (Float.pi *. height /. 3.)
-   *. (radius1 ** 2. +. radius1 *. radius2 +. radius2 ** 2.) ;;
+  *. (radius1 ** 2. +. radius1 *. radius2 +. radius2 ** 2.) ;;
 
 (*======================================================================
 Part 5: Utilizing recursion
@@ -402,10 +423,18 @@ For example,
    # factorial 0 ;;
    - : int = 1
 ......................................................................*)
+(* It good that you consider the case where n is negative! *)
+let rec factorial (n : int) : int =
+  if n > 0 then n * factorial (n - 1)
+  else if n < 0 then n * factorial (n + 1)
+  else 1 ;;
 
-let rec factorial (x : int) : int =
-  if x = 0 then 1
-  else x * factorial(x - 1) ;;
+(* Since we have studied exception, we can also make use of it here. *)
+let rec factorial (n : int) : int =
+  if n < 0 then raise (Invalid_argument "input must be non-negative")
+  else if n = 0 then 1
+  else n * factorial (n - 1) ;;
+
 
 (*......................................................................
 Exercise 14: Define a recursive function `sum_from_zero` that sums all
@@ -423,7 +452,20 @@ the mathematician Carl Freiedrich Gauss as a seven-year-old, *in his
 head*!)
 ......................................................................*)
 
-let rec sum_from_zero (x : int) : int =
-  if x = 0 then 0
-  else if x < 0 then x + sum_from_zero (succ x)
-  else x + sum_from_zero (pred x) ;;
+
+
+let rec sum_from_zero (n : int) : int =
+  (* you can also use succ here *)
+  if n < 0 then n + sum_from_zero (n + 1)
+  else if n = 0 then 0
+  (* you can also use pred here *)
+  else n + sum_from_zero (n - 1) ;;
+
+(* by the same logic as last one, we can also set an invalid argument
+here *)
+
+let rec sum_from_zero (n : int) : int =
+  if n < 0 then raise (Invalid_argument "input must be non-negative")
+  else if n = 0 then 0
+  (* you can also use pred here *)
+  else n + sum_from_zero (n - 1) ;;
