@@ -43,21 +43,17 @@ than the two separate matches in the two let expressions. Reimplement
 expression.
 ......................................................................*)
 
-(* without syntatic sugar
-let add_point_pair (p1 : point_pair) (p2 : point_pair) : point_pair =
-  let (x1, y1), (x2, y2) = p1, p2 in
-  x1 + x2, y1 + y2 ;;
-*)
+(* without syntatic sugar *)
+let add_point_pair ;;
 
-let add_point_pair (x1, y1 : point_pair) (x2, y2 : point_pair) : point_pair =
-  (x1 + x2, y1 + y2) ;;
+let add_point_pair  ;;
 
 (* Analogously, we can define a point by using a record to package up
 the x and y coordinates. *)
 
-type point_recd = {x : int; y : int} ;;
+type point_recd = ;;
 
-let r = {x = 1; y = 3} ;;
+ ;;
 
 (*......................................................................
 Exercise 2A: 
@@ -66,7 +62,7 @@ Replace the two lines below with a single `let` expression that
 extracts the x and y coordinate values from `r` into `x1` and `y1`.
 ......................................................................*)
 
-let {x = x1; y = y1} = r ;;
+let  =  ;;
                    
 (*......................................................................
 Exercise 2B: 
@@ -76,8 +72,8 @@ Implement a function `add_point_recd` to add two points of type
 ......................................................................*)
 
 (* Try with syntatic sugar? *)
-let add_point_recd (p1 : point_recd) (p2 : point_recd) : point_recd =
-  {x = p1.x + p2.x; y = p1.y + p2.y} ;;
+let add_point_recd  =
+   ;;
 
 (* Why this doesn't work?
 let add_point_recd ({x1; y1} : point_recd) ({x2; y2} : point_recd) : point_recd =
@@ -94,16 +90,16 @@ Exercise 3: Write a function `dot_product_pair` to compute the dot
 product for points encoded as the `point_pair` type.
 ......................................................................*)
 
-let dot_product_pair (x1, y1 : point_pair) (x2, y2 : point_pair) : int =
-  x1 * x2 + y1 * y2 ;;
+let dot_product_pair  =
+   ;;
 
 (*......................................................................
 Exercise 4: Write a function `dot_product_recd` to compute the dot
 product for points encoded as the `point_recd` type.
 ......................................................................*)
 
-let dot_product_recd (p1 : point_recd) (p2 : point_recd) : int =
-  p1.x * p2.x + p1.y * p2.y ;;
+let dot_product_recd  =
+   ;;
 
 (* Converting between the pair and record representations of points
 
@@ -117,16 +113,16 @@ Exercise 5: Write a function `point_pair_to_recd` that converts a
 `point_pair` to a `point_recd`.
 ......................................................................*)
 
-let point_pair_to_recd (x, y : point_pair) : point_recd =
-  {x; y} ;;
+let point_pair_to_recd  =
+   ;;
 
 (*......................................................................
 Exercise 6: Write a function `point_recd_to_pair` that converts a
 `point_recd` to a `point_pair`.
 ......................................................................*)
 
-let point_recd_to_pair ({x; y} : point_recd) : point_pair =
-  x, y ;;
+let point_recd_to_pair  =
+ ;;
    
 (*======================================================================
 Part 2: A simple database of records
@@ -171,10 +167,8 @@ For example:
      {name = "Sandy"; id = 993855891; course = "cs51"}]
 ......................................................................*)
 
-let transcript (enrollments : enrollment list)
-               (student : int)
-             : enrollment list =
-  List.filter (fun { id; _ } -> id = student) enrollments ;;
+let transcript  =
+   ;;
   
 (*......................................................................
 Exercise 8: Define a function called `ids` that takes an `enrollment
@@ -189,9 +183,8 @@ For example:
     - : int list = [482958285; 603858772; 993855891]
 ......................................................................*)
 
-let ids (enrollments: enrollment list) : int list =
- List.sort_uniq (compare) 
-                (List.map (fun student -> student.id) enrollments) ;;
+let ids  =
+ ;;
   
 (*......................................................................
 Exercise 9: Define a function `verify` that determines whether all the
@@ -207,17 +200,13 @@ For example:
 ......................................................................*)
 
 (* We start with a function to extract all the names from the database. *)
-let names (enrollments : enrollment list) : string list =
-  List.sort_uniq (compare)
-                 (List.map (fun { name; _} -> name) enrollments) ;;
+let names  =
+ ;;
 
 (* Then verify that for each id, the list of names associated with the 
 course in that id's transcript has length 1. *)
-let verify (enrollments : enrollment list) : bool =
-  List.for_all (fun l -> List.length l = 1)
-               (List.map
-                  (fun student -> names (transcript enrollments student))
-                  (ids enrollments)) ;;
+let verify  =
+ ;;
 
 (*======================================================================
 Part 3: Polymorphism
@@ -240,10 +229,8 @@ worry about explicitly handling the anomalous case when the two lists
 are of different lengths.)
 ......................................................................*)
 
-let rec zip (x : 'a list) (y : 'b list) : ('a * 'b) list =
-  match x, y with
-  | [], [] -> []
-  | xhd :: xtl, yhd :: ytl -> (xhd, yhd) :: (zip xtl ytl) ;;
+let zip  =
+ ;;
 
 (*......................................................................
 Exercise 11: Partitioning a list -- Given a boolean function, say
@@ -273,10 +260,8 @@ Now implement the function yourself (without using `List.partition`,
 though other `List` module functions may be useful).
 ......................................................................*)
    
-let partition (condition : 'a -> bool) (lst : 'a list)
-            : 'a list * 'a list =
-  let open List in
-  filter condition lst, filter (fun x -> not (condition x)) lst ;;
+let partition  =
+ ;;
 
 (*......................................................................
 Exercise 12: We can think of function application itself as a
@@ -338,5 +323,5 @@ Can you think of a reason that the `apply` function might in fact be
 useful?
 ......................................................................*)
 
-let apply (func : 'arg -> 'result) (arg : 'arg) : 'result =
-  func arg ;;
+let apply  =
+ ;;
