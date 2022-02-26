@@ -42,7 +42,10 @@ than the two separate matches in the two let expressions. Reimplement
 `add_point_pair` to use a single pattern match in a single `let`
 expression.
 ......................................................................*)
-
+let add_point_pair (x1, y1 : point_pair) 
+                   (x2, y2 : point_pair) 
+                  : point_pair =
+  x1 + x2, y1 + y2 ;;
 
 let add_point_pair (p1 : point_pair) (p2 : point_pair) : point_pair =
   let (x1, y1), (x2, y2) = p1, p2 in
@@ -66,7 +69,7 @@ extracts the x and y coordinate values from `r` into `x1` and `y1`.
 let x1, y1 = r.x, r.y ;;
 
 (* what does this mean *)
-let {x = x1; y = y1} = r ;;
+let {x = x1; y = y1} as point = r ;;
                    
 (*......................................................................
 Exercise 2B: 
@@ -223,7 +226,9 @@ course in that id's transcript has length 1. *)
 let verify (enrollments : enrollment list) : bool =
   List.for_all (fun l -> List.length l = 1)
                (List.map
+                  (* looking for names correspond to stu id *)
                   (fun student -> names (transcript enrollments student))
+                  (* a list with only stu id *)
                   (ids enrollments)) ;;
 
 (*======================================================================
