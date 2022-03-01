@@ -1,0 +1,7 @@
+"Rule: ocaml: ml -> cmo & cmi (%=color )": "4bf.\136\200\022G\167\004\254}\222lg\179"
+"Rule: ocaml: ml -> cmo & cmi (%=lab7_part2 )": "\246\228\132RU\012\242\164\132\202\204s\218\161\183Y"
+"Resource: /Users/susannah/Documents/GitHub/cs51/lab7-2022-susannahsu/lab7_part2.ml": "\1730FS2\177\243:VM}0W\145\2218"
+"Resource: /Users/susannah/Documents/GitHub/cs51/lab7-2022-susannahsu/color.ml": "B\230\139T\195\205\253\027$S\166$\236\216\174\253"
+"Rule: ocaml: cmo* -> byte (%=lab7_part2 )": "\130\t\249[\r\168\0256\168\199`\bOkf\003"
+"Rule: ocaml dependencies ml (%=color )": "2c\221\206\155\239\tY\245\029\176fH\147\219\142"
+"Rule: ocaml dependencies ml (%=lab7_part2 )": "\211\217\168\n\217i\014\224\194JL\214?\196\201("

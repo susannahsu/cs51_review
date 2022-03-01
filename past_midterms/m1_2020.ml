@@ -405,12 +405,14 @@ of royals in its argument royal family tree. For instance,
   - : int = 13
 *)
 
-let count_royals (tree : royal) : int =
-  let rec walk_tree (rlst : royal list) : int =
-    match rlst with
-    | [] -> 0
-    | hd :: tl -> 1 + List.fold_left (walk_tree) 0 tl
-  in walk_tree tree.children ;;
+let rec count_royals (tree : royal) : int =
+  match tree.children with
+  | [] -> 1
+  | hd :: tl ->
+      List.fold_left (fun acc x -> acc + (count_royals x)) 0 tree.children ;;
+
+
+
 
 (* ask if it's right *)
 
@@ -444,13 +446,21 @@ well as List library functions. Keep in mind that the royal data structure
 might not have the children listed in age order (for instance, as in Figure 3).
 *)
 
-let primogeniture (tree : royal) : string list =
-  let rec walk_tree (rlst : royal list) : int =
-    match rlst with
-    | [] -> []
-    | hd :: tl -> walk_tree hd.children + 1
-  in walk_tree tree.children ;;
 
+let primogeniture (root : royal) : string list =
+
+let rec primogeniture (tree : royal) : string list =
+  let children = List.rev (List.sort compare_age tree.children) in
+  match children with
+  | [] -> [tree.name]
+  | hd :: tl ->
+      let children2 = List.rev (List.sort compare_age hd.children) in
+        List.fold_left (fun acc x -> (acc @ primogeniture x)) [hd.name] children2 ;;
+
+
+
+let compare_age (r1 : royal) (r2 : royal) : int =
+  compare (r1.age) (r2.age) ;;
 
 
 (* ========================================================================= *)
