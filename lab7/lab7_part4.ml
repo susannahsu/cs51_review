@@ -66,27 +66,38 @@ module Stack : STACK =
   struct
     exception EmptyStack
 
-    type  = 
+    type 'a stack = 'a list
 
     (* empty -- An empty stack *)
-    let empty :  = 
+    let empty : 'a stack = []
 
     (* push i s -- Adds an element i to the top of stack s *)
-    let push 
+    let push (i : 'a) (s : 'a stack) : 'a stack = i :: s
 
     (* pop_helper s -- Returns a pair of the top element of the
        stack and a stack containing the remaining elements *)
-    let pop_helper 
+    let pop_helper (s : 'a stack) : 'a * 'a stack =
+      match s with
+      | [] -> raise EmptyStack
+      | hd :: tl -> (hd, tl)
+
 
     (* top s -- Returns the value of the topmost element on stack s,
        raising the EmptyStack exception if there is no element to be
        returned. *)
-    let 
+    let top (s : 'a stack) : 'a =
+      match s with
+      | [] -> raise EmptyStack
+      | hd :: _ -> hd
+    
+    let top (s : 'a stack) : 'a =
+      fst (pop_helper s)
 
     (* pop s -- Returns a stack with the topmost element from s
        removed, raising the EmptyStack exception if there is no
        element to be removed. *)
-    let pop 
+    let pop (s : 'a stack) : 'a stack =
+      snd (pop_helper s)
   end ;;
 
 (*......................................................................
@@ -96,6 +107,11 @@ following strings pushed in order: `"Computer"`, `"Science"`, `"51"`.
 ......................................................................*)
 
 let sample_stack () =
+  let open Stack in
+  empty
+  |> push "Computer"
+  |> push "Science"
+  |> push "51" ;;
 
 
 (*......................................................................
@@ -104,4 +120,4 @@ Exercise 4C: Write an expression that generates a stack with the
 stack, naming it `top_el`.
 ......................................................................*)
 
-let top_el ;;
+let top_el : string = Stack.top (sample_stack ());;

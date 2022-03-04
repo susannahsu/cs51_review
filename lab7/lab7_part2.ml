@@ -85,7 +85,7 @@ thereby naming the result `red_channel`.
 ......................................................................*)
 
 let red_channel : int  = 
-;;
+Color.red (Color.color_name Color.Red);;
 
 (* Let's investigate one way that a signature can be useful. Although
 color.ml contains an implementation of a basic color module, the

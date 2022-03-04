@@ -91,16 +91,16 @@ Now, complete the functor definition below.
 
 module MakeInterval (Endpoint : ORDERED_TYPE) = 
   struct
-    type interval =
-      | Interval of Endpoint.t * Endpoint.t
-      | Empty
+    type interval = 
+    | Empty
+    | Interval of Endpoint.t * Endpoint.t
 
     (* create low high -- Returns a new interval covering `low` to
        `high` inclusive. If `low` is greater than `high`, then the
        interval is empty. *)
     let create (low : Endpoint.t) (high : Endpoint.t) : interval =
-      if Endpoint.compare low high > 0 then Empty
-      else Interval (low, high)
+      if Endpoint.compare high low < 0 then Empty
+      else Interval (low, high) 
 
     (* is_empty intvl -- Returns true if and only if `intvl` is
        empty *)
@@ -111,23 +111,22 @@ module MakeInterval (Endpoint : ORDERED_TYPE) =
 
     (* contains intvl x -- Returns true if and only if the value `x`
        is contained within `intvl` *)
-    let contains (intvl : interval) (x : Endpoint.t) : bool =
+    let contains (x : Endpoint.t) (intvl : interval) : bool =
       match intvl with
       | Empty -> false
       | Interval (low, high) -> 
-          Endpoint.compare x low >= 0 
-          && Endpoint.compare x high <= 0
+         Endpoint.compare x low >= 0 && Endpoint.compare x high <= 0 ;;
 
     (* intersect intvl1 intvl2 -- Returns the intersection of `intvl1`
        and `intvl2` *)
     let intersect (intvl1 : interval) (intvl2 : interval) : interval =
-      let ordered x y = if Endpoint.compare x y <= 0 then x, y else y, x in
+      let ordered x y = if Endpoint.compare x y < 0 then x, y else y, x in
       match intvl1, intvl2 with
       | Empty, _
       | _, Empty -> Empty
-      | Interval (low1, high1), Interval (low2, high2) -> 
-          let (_, low), (high, _) = ordered low1 low2, ordered high1 high2 in
-          create low high
+      | Interval (low1, high1), Interval (low2, high2) ->
+         let (_, low), (high, _) = ordered low1 low2, ordered high1 high2 in
+         create low high
     end ;;
 
 (*......................................................................
@@ -135,11 +134,12 @@ Exercise 1B: Using the completed functor above, instantiate an
 *integer* interval module.
 ......................................................................*)
 
-module IntInterval = 
-  MakeInterval (struct 
+module IntInterval =
+   MakeInterval (struct
                   type t = int
-                  let compare = Stdlib.compare 
-                end) ;;
+                  let compare = Stdlib.compare
+                 end)
+;;
   
   
 
@@ -185,12 +185,12 @@ an interval.
 
 module type INTERVAL = 
   sig 
-    type interval
-    type endpoint
-    val create : endpoint -> endpoint -> interval
-    val is_empty : interval -> bool
-    val contains : interval -> endpoint -> bool
-    val intersect : interval -> interval -> interval
+   type interval
+   type endpoint
+   val create : endpoint -> endpoint -> interval
+   val is_empty : interval -> bool
+   val contains : interval -> endpoint -> bool
+   val intersect : interval -> interval -> interval
   end ;;
 
 (*......................................................................
@@ -203,15 +203,15 @@ forget to specify the module type.**
 
 module MakeSafeInterval (Endpoint : ORDERED_TYPE) : INTERVAL =
   struct
-    type endpoint = Endpoint.t
-    type interval =
-      | Interval of endpoint * endpoint
-      | Empty
+      type endpoint = Endpoint.t
+      type interval =
+         | Interval of endpoint * endpoint
+         | Empty
 
     (* create low high -- Returns a new interval covering `low` to
        `high` inclusive. If `low` is greater than `high`, then the
        interval is empty. *)
-    let create (low : endpoint) (high : endpoint) : interval =
+    let create (low : Endpoint.t) (high : Endpoint.t) : interval =
       if Endpoint.compare low high > 0 then Empty
       else Interval (low, high)
 
@@ -241,6 +241,7 @@ module MakeSafeInterval (Endpoint : ORDERED_TYPE) : INTERVAL =
       | Interval (low1, high1), Interval (low2, high2) -> 
           let (_, low), (high, _) = ordered low1 low2, ordered high1 high2 in
           create low high
+
   end ;;
 
 (* We have successfully made our returned module abstract, but believe
@@ -253,12 +254,13 @@ Exercise 2C: Create an IntSafeInterval module using the new
 MakeSafeInterval functor.
 ......................................................................*)
 
-module IntSafeInterval = 
-  MakeSafeInterval 
-    (struct
-      type t = int
-      let compare = Stdlib.compare
-    end) ;;
+module IntSafeInterval =
+   MakeSafeInterval 
+      (struct 
+         type t = int
+         let compare = Stdlib.compare
+      end)
+;;
 
 (* Now, try evaluating the following expression in the REPL:
 
@@ -311,20 +313,16 @@ exception of any needed sharing constraints.
 
 module MakeBestInterval (Endpoint : ORDERED_TYPE) 
        : (INTERVAL with type endpoint = Endpoint.t) =
+  struct
+      type endpoint = Endpoint.t
+      type interval =
+         | Interval of endpoint * endpoint
+         | Empty
 
     (* create low high -- Returns a new interval covering `low` to
        `high` inclusive. If `low` is greater than `high`, then the
        interval is empty. *)
-
-    struct
-      type endpoint = Endpoint.t
-      type interval = | Interval of endpoint * endpoint
-                      | Empty
-
-    (* create low high -- Returns a new interval covering `low` to
-       `high` inclusive. If `low` > `high`, then the interval is
-       empty. *)       
-    let create (low : endpoint) (high : endpoint) : interval =
+    let create (low : Endpoint.t) (high : Endpoint.t) : interval =
       if Endpoint.compare low high > 0 then Empty
       else Interval (low, high)
 
@@ -354,7 +352,8 @@ module MakeBestInterval (Endpoint : ORDERED_TYPE)
       | Interval (low1, high1), Interval (low2, high2) -> 
           let (_, low), (high, _) = ordered low1 low2, ordered high1 high2 in
           create low high
-  end
+
+  end ;;
 ;;
 
 (* We now have a fully functioning functor that can create interval
